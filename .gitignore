@@ -1,0 +1,29 @@
+# --- Secretos: NUNCA se suben a git ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+id_rsa*
+credentials*.json
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# --- Datos generados (pueden contener conversaciones privadas) ---
+data/*
+!data/.gitkeep
+workspace/*
+!workspace/.gitkeep
+
+# --- Entrenamiento (archivos enormes) ---
+training/dataset.jsonl
+training/output/
+training/Modelfile
+*.gguf
+*.safetensors
