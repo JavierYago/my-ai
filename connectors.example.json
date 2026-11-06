@@ -1,0 +1,32 @@
+{
+  "servers": {
+    "archivos": {
+      "description": "Leer y organizar archivos de una carpeta de tu PC",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/TU_USUARIO/Documents"],
+      "enabled": false,
+      "confirm": true
+    },
+    "memoria": {
+      "description": "Memoria a largo plazo en forma de grafo de conocimiento",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "enabled": false,
+      "confirm": false
+    },
+    "pensamiento": {
+      "description": "Razonar paso a paso problemas complejos",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": false,
+      "confirm": false
+    },
+    "github": {
+      "description": "Repositorios, issues y pull requests de GitHub (necesita GITHUB_TOKEN en .env)",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": { "Authorization": "Bearer ${GITHUB_TOKEN}" },
+      "enabled": false,
+      "confirm": true
+    }
+  }
+}

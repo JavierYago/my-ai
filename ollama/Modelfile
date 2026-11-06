@@ -1,0 +1,4 @@
+# Modelo base con más memoria de conversación (8192 tokens en vez de 4096).
+# Crear con:  ollama create yunque-3b -f ollama/Modelfile
+FROM qwen2.5-coder:3b
+PARAMETER num_ctx 8192

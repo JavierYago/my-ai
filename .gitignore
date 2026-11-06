@@ -27,3 +27,7 @@ training/output/
 training/Modelfile
 *.gguf
 *.safetensors
+
+# --- Modelos de voz descargados y conectores locales ---
+models/
+connectors.json

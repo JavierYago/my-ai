@@ -49,13 +49,14 @@ class ChatStore:
         return sorted(chats, key=lambda c: c["updated"], reverse=True)
 
     def add_turn(self, chat: dict, question: str, answer: str, turn_id: str,
-                 tools: list[str]) -> None:
+                 tools: list[str], media: list[dict] | None = None) -> None:
         if not chat["messages"]:
             title = " ".join(question.split())
             chat["title"] = redact(title[:60] + ("…" if len(title) > 60 else ""))
         chat["messages"] += [
             {"role": "user", "content": redact(question)},
-            {"role": "assistant", "content": redact(answer), "turn_id": turn_id, "tools": tools},
+            {"role": "assistant", "content": redact(answer), "turn_id": turn_id, "tools": tools,
+             "media": media or []},
         ]
         self.save(chat)
 

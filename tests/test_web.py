@@ -1,11 +1,12 @@
 import json
+from dataclasses import replace
 
 import pytest
 from fastapi.testclient import TestClient
 
-from mi_ia.chats import ChatStore
-from mi_ia.memory import Memory
-from mi_ia.web import server
+from yunque.chats import ChatStore
+from yunque.memory import Memory
+from yunque.web import server
 
 
 class StreamingFakeLLM:
@@ -33,7 +34,7 @@ def events(response):
 
 def test_index_and_security_headers(client):
     r = client.get("/")
-    assert r.status_code == 200 and "Mi IA" in r.text
+    assert r.status_code == 200 and "Yunque" in r.text
     assert "default-src 'self'" in r.headers["content-security-policy"]
 
 
@@ -66,6 +67,23 @@ def test_chat_flow_with_streaming(client, monkeypatch):
     assert ok.status_code == 200
     bad = client.post("/api/feedback", json={"turn_id": done["turn_id"], "rating": "hack"})
     assert bad.status_code == 422
+
+
+def test_generated_files_route(client, tmp_path, monkeypatch):
+    workspace = tmp_path / "ws"
+    (workspace / "generated").mkdir(parents=True)
+    (workspace / "generated" / "imagen.jpg").write_bytes(b"jpg")
+    (workspace / "secreto.txt").write_text("no")
+    monkeypatch.setattr(server, "settings", replace(server.settings, workspace_dir=workspace))
+    assert client.get("/files/generated/imagen.jpg").content == b"jpg"
+    assert client.get("/files/generated/..%2Fsecreto.txt").status_code == 404
+    assert client.get("/files/generated/no-existe.jpg").status_code == 404
+
+
+def test_skills_and_connectors_endpoints(client):
+    names = [s["name"] for s in client.get("/api/skills").json()]
+    assert "crear-web" in names
+    assert isinstance(client.get("/api/connectors").json(), list)
 
 
 def test_notes(client):

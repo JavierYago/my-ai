@@ -4,8 +4,8 @@ Copia la plantilla de chat del modelo base (para que entienda herramientas) y
 apunta al archivo .gguf que generaste.
 
 Uso:
-    python training/make_modelfile.py training/mi-ia.gguf --base qwen2.5-coder:1.5b
-    ollama create mi-ia -f training/Modelfile
+    python training/make_modelfile.py training/yunque.gguf --base qwen2.5-coder:1.5b
+    ollama create yunque -f training/Modelfile
 """
 import argparse
 import subprocess
@@ -18,7 +18,7 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("gguf", help="ruta al archivo .gguf")
     p.add_argument("--base", default="qwen2.5-coder:1.5b", help="modelo de Ollama del que partiste")
-    p.add_argument("--name", default="mi-ia")
+    p.add_argument("--name", default="yunque")
     args = p.parse_args()
 
     gguf = Path(args.gguf).resolve()

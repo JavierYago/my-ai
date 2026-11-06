@@ -2,10 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "mi-ia-web",
+      "name": "yunque-web",
       "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["-m", "uvicorn", "mi_ia.web.server:app", "--host", "127.0.0.1", "--port", "8000"],
-      "port": 8000
+      "runtimeArgs": ["-m", "uvicorn", "yunque.web.server:app", "--host", "127.0.0.1", "--port", "8010"],
+      "env": { "WEB_PORT": "8010" },
+      "port": 8010,
+      "autoPort": false
     }
   ]
 }

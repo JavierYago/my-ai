@@ -2,7 +2,7 @@ import json
 import sys
 from pathlib import Path
 
-from mi_ia.memory import Memory
+from yunque.memory import Memory
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "training"))
 from build_dataset import build, parse_markdown  # noqa: E402
@@ -12,7 +12,7 @@ SEED = """
 >>> usuario
 Hola
 >>> asistente
-Soy Mi IA.
+Soy Yunque.
 ```python
 x = 1
 ```

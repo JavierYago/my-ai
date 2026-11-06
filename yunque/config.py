@@ -29,9 +29,18 @@ class Settings:
     data_dir: Path
     workspace_dir: Path
     web_port: int = 8000
+    models_dir: Path = ROOT / "models"
+    skills_dir: Path = ROOT / "skills"
+    connectors_file: Path = ROOT / "connectors.json"
+    image_model: str = "black-forest-labs/flux.1-schnell"
+    music_model: str = "elevenlabs/music-v2.5"
+    whisper_model: str = "base"
+    voice_language: str = "es"
+    voice_name: str = "es_ES-davefx-medium"
     # repr=False: las claves nunca aparecen al imprimir la configuración
     llm_api_key: str = field(default="", repr=False)
     tavily_api_key: str = field(default="", repr=False)
+    pollinations_api_key: str = field(default="", repr=False)
 
 
 def get_settings() -> Settings:
@@ -40,7 +49,7 @@ def get_settings() -> Settings:
     data_dir.mkdir(exist_ok=True)
     workspace_dir.mkdir(exist_ok=True)
     return Settings(
-        ai_name=os.getenv("AI_NAME", "Mi IA"),
+        ai_name=os.getenv("AI_NAME", "Yunque"),
         llm_base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1").rstrip("/"),
         llm_model=os.getenv("LLM_MODEL", "qwen2.5-coder:3b"),
         llm_temperature=float(os.getenv("LLM_TEMPERATURE", "0.3")),
@@ -51,6 +60,12 @@ def get_settings() -> Settings:
         data_dir=data_dir,
         workspace_dir=workspace_dir,
         web_port=int(os.getenv("WEB_PORT", "8000")),
+        image_model=os.getenv("IMAGE_MODEL", "black-forest-labs/flux.1-schnell"),
+        music_model=os.getenv("MUSIC_MODEL", "elevenlabs/music-v2.5"),
+        whisper_model=os.getenv("WHISPER_MODEL", "base"),
+        voice_language=os.getenv("VOICE_LANGUAGE", "es"),
+        voice_name=os.getenv("VOICE_NAME", "es_ES-davefx-medium"),
         llm_api_key=os.getenv("LLM_API_KEY", ""),
         tavily_api_key=os.getenv("TAVILY_API_KEY", ""),
+        pollinations_api_key=os.getenv("POLLINATIONS_API_KEY", ""),
     )

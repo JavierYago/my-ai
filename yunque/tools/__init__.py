@@ -1,9 +1,9 @@
-"""Herramientas que la IA puede usar: web, código y archivos."""
+"""Herramientas que la IA puede usar: web, código, archivos, imágenes, audio y habilidades."""
 from dataclasses import dataclass
 from typing import Callable
 
 from ..config import Settings
-from . import files, web
+from . import files, media, web
 from .code import run_python
 
 
@@ -12,7 +12,8 @@ class Tool:
     name: str
     description: str
     parameters: dict
-    func: Callable[..., str]
+    # Devuelve texto, o {"text": ..., "media": {...}} si genera una imagen o un audio
+    func: Callable[..., str | dict]
     needs_confirmation: bool = False
 
     def schema(self) -> dict:
@@ -30,7 +31,7 @@ def _params(required: list[str], **props: dict) -> dict:
     return {"type": "object", "properties": props, "required": required}
 
 
-def build_tools(settings: Settings) -> dict[str, Tool]:
+def build_tools(settings: Settings, voice=None, skills=None) -> dict[str, Tool]:
     ws = settings.workspace_dir
     tools = [
         Tool(
@@ -70,5 +71,36 @@ def build_tools(settings: Settings) -> dict[str, Tool]:
             _params(["path", "content"], path={"type": "string"}, content={"type": "string"}),
             lambda path, content: files.write_file(ws, path, content),
         ),
+        Tool(
+            "generate_image",
+            "Genera una imagen a partir de una descripción. El prompt debe ir en inglés y detallado.",
+            _params(["prompt"],
+                    prompt={"type": "string", "description": "Descripción detallada en inglés"},
+                    width={"type": "integer", "description": "Ancho en píxeles (1024 por defecto)"},
+                    height={"type": "integer", "description": "Alto en píxeles (1024 por defecto)"}),
+            lambda prompt, width=1024, height=1024: media.generate_image(
+                prompt, ws, settings.pollinations_api_key, settings.image_model, width, height),
+        ),
+        Tool(
+            "generate_music",
+            "Genera música o efectos de sonido a partir de una descripción (mejor en inglés).",
+            _params(["prompt"], prompt={"type": "string", "description": "Estilo, instrumentos, ambiente"}),
+            lambda prompt: media.generate_music(
+                prompt, ws, settings.pollinations_api_key, settings.music_model),
+        ),
     ]
+    if voice is not None:
+        tools.append(Tool(
+            "generate_speech",
+            "Convierte un texto en un archivo de audio con voz (narraciones, mensajes leídos).",
+            _params(["text"], text={"type": "string", "description": "Texto que se leerá en voz alta"}),
+            lambda text: media.generate_speech(text, ws, voice),
+        ))
+    if skills is not None:
+        tools.append(Tool(
+            "use_skill",
+            "Carga las instrucciones detalladas de una de tus habilidades.",
+            _params(["name"], name={"type": "string", "description": "Nombre de la habilidad"}),
+            lambda name: skills.load(name),
+        ))
     return {t.name: t for t in tools}

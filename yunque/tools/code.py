@@ -8,8 +8,8 @@ from pathlib import Path
 MAX_OUTPUT = 6_000
 
 # Solo se pasan estas variables al proceso: así el código no puede leer las claves del .env
-_SAFE_ENV_VARS = ("PATH", "PATHEXT", "SYSTEMROOT", "COMSPEC", "TEMP", "TMP",
-                  "HOME", "USERPROFILE", "LANG", "WINDIR")
+_SAFE_ENV_VARS = ("PATH", "PATHEXT", "SYSTEMROOT", "SYSTEMDRIVE", "PROGRAMDATA", "ALLUSERSPROFILE",
+                  "COMSPEC", "TEMP", "TMP", "HOME", "USERPROFILE", "LANG", "WINDIR")
 
 
 def run_python(code: str, workspace: Path, timeout: int = 20) -> str:

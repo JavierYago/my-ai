@@ -6,6 +6,7 @@ Uso:
     python main.py --check              # comprobar conexión con el modelo
 """
 import argparse
+import json
 import sys
 import uuid
 
@@ -15,11 +16,14 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.syntax import Syntax
 
-from mi_ia.agent import Agent
-from mi_ia.config import get_settings
-from mi_ia.llm import ChatLLM, LLMError
-from mi_ia.memory import Memory
-from mi_ia.tools import build_tools
+from yunque.agent import Agent
+from yunque.config import get_settings
+from yunque.connectors import ConnectorManager
+from yunque.llm import ChatLLM, LLMError
+from yunque.memory import Memory
+from yunque.skills import SkillLibrary
+from yunque.tools import build_tools
+from yunque.voice import Voice
 
 console = Console()
 
@@ -35,17 +39,27 @@ HELP = """**Comandos**
 
 ICONS = {"web_search": "🔎 Buscando", "fetch_url": "🌐 Leyendo", "run_python": "🐍 Ejecutando código",
          "read_file": "📄 Leyendo archivo", "write_file": "💾 Guardando archivo",
-         "list_files": "📁 Listando archivos"}
+         "list_files": "📁 Listando archivos", "generate_image": "🎨 Creando imagen",
+         "generate_music": "🎵 Creando música", "generate_speech": "🔊 Grabando audio",
+         "use_skill": "📘 Usando habilidad"}
 
 
 def on_event(tool: str, args: dict) -> None:
-    detail = args.get("query") or args.get("url") or args.get("path") or ""
+    if tool == "_discard":
+        return
+    if tool == "_media":
+        console.print(f"[green]📎 Guardado en workspace/{args['path']}[/green]")
+        return
+    detail = args.get("query") or args.get("url") or args.get("path") or args.get("prompt") or ""
     console.print(f"[dim]{ICONS.get(tool, tool)} {detail}[/dim]")
 
 
 def confirm(tool: str, args: dict) -> bool:
     if tool == "run_python":
         console.print(Panel(Syntax(args.get("code", ""), "python"), title="Código a ejecutar"))
+    else:
+        console.print(Panel(Syntax(json.dumps(args, ensure_ascii=False, indent=2), "json"),
+                            title=f"Datos para {tool}"))
     return Confirm.ask(f"¿Permitir {tool}?", default=False)
 
 
@@ -53,8 +67,17 @@ def build_agent() -> tuple[Agent, Memory]:
     s = get_settings()
     llm = ChatLLM(s.llm_base_url, s.llm_api_key, s.llm_model, s.llm_temperature, s.llm_timeout)
     memory = Memory(s.data_dir)
-    agent = Agent(llm, build_tools(s), memory, name=s.ai_name, max_steps=s.max_tool_steps,
-                  confirm=confirm, on_event=on_event)
+    skills = SkillLibrary(s.skills_dir)
+    voice = Voice(s.models_dir, s.voice_name, s.whisper_model, s.voice_language)
+    connectors = ConnectorManager(s.connectors_file, s.data_dir / "connectors.log")
+    with console.status("Conectando conectores...", spinner="dots"):
+        connectors.start()
+    for status in connectors.status.values():
+        if status.error:
+            console.print(f"[yellow]Conector {status.name}: {status.error}[/yellow]")
+    tools = {**build_tools(s, voice=voice, skills=skills), **connectors.tools()}
+    agent = Agent(llm, tools, memory, name=s.ai_name, max_steps=s.max_tool_steps,
+                  confirm=confirm, on_event=on_event, skills=skills)
     return agent, memory
 
 

@@ -17,10 +17,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from mi_ia.config import get_settings  # noqa: E402
-from mi_ia.memory import Memory  # noqa: E402
-from mi_ia.prompts import build_system_prompt  # noqa: E402
-from mi_ia.security import redact  # noqa: E402
+from yunque.config import get_settings  # noqa: E402
+from yunque.memory import Memory  # noqa: E402
+from yunque.prompts import build_system_prompt  # noqa: E402
+from yunque.security import redact  # noqa: E402
 
 SEED_DIR = ROOT / "training" / "seed"
 OUTPUT = ROOT / "training" / "dataset.jsonl"
@@ -78,7 +78,7 @@ def build(seed_dir: Path, memory: Memory, output: Path, ai_name: str) -> int:
     with output.open("w", encoding="utf-8") as f:
         for conv in load_seed(seed_dir) + load_feedback(memory):
             clean = [{"role": m["role"],
-                      "content": redact(m["content"].replace("Mi IA", ai_name))}
+                      "content": redact(m["content"].replace("Yunque", ai_name))}
                      for m in conv]
             key = json.dumps(clean, ensure_ascii=False)
             if key in seen:

@@ -1,6 +1,6 @@
-from mi_ia.tools import files
-from mi_ia.tools.code import run_python
-from mi_ia.tools.web import html_to_text
+from yunque.tools import files
+from yunque.tools.code import run_python
+from yunque.tools.web import html_to_text
 
 
 def test_run_python_output(tmp_path):
@@ -28,6 +28,17 @@ def test_files_roundtrip_and_hides_env(tmp_path):
     assert files.read_file(tmp_path, "src/hola.py") == "print('hola')"
     listing = files.list_files(tmp_path)
     assert "src/hola.py" in listing and ".env" not in listing
+
+
+def test_pollinations_errors_are_explained():
+    import httpx
+
+    from yunque.tools.media import _http_error
+
+    quest = httpx.Response(402, json={"error": {"code": "QUEST_POLLEN_ONLY", "message": "x"}})
+    assert "Quest pollen only" in _http_error(quest)
+    assert "saldo" in _http_error(httpx.Response(402, json={"error": {"code": "OTHER"}}))
+    assert "no es válida" in _http_error(httpx.Response(401, text="no json"))
 
 
 def test_html_to_text():

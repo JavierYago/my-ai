@@ -37,11 +37,14 @@ class ChatLLM:
         headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
         self._client = httpx.Client(headers=headers, timeout=timeout)
 
-    def chat(self, messages: list[dict], tools: list[dict] | None = None) -> dict:
+    def chat(self, messages: list[dict], tools: list[dict] | None = None,
+             max_tokens: int | None = None) -> dict:
         """Envía la conversación y devuelve el mensaje del asistente (formato OpenAI)."""
         body = {"model": self.model, "messages": messages, "temperature": self.temperature}
         if tools:
             body["tools"] = tools
+        if max_tokens:
+            body["max_tokens"] = max_tokens
         data = self._post("/chat/completions", body)
         try:
             return data["choices"][0]["message"]

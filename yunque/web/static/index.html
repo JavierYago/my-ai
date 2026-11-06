@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mi IA</title>
+  <title>Yunque</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f6f62'/%3E%3Cpath d='M16 6l2.6 7.4L26 16l-7.4 2.6L16 26l-2.6-7.4L6 16l7.4-2.6z' fill='white'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/vendor/hl-light.css" media="(prefers-color-scheme: light)">
   <link rel="stylesheet" href="/static/vendor/hl-dark.css" media="(prefers-color-scheme: dark)">
@@ -14,7 +14,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg></span>
-      <span id="brand-name">Mi IA</span>
+      <span id="brand-name">Yunque</span>
     </div>
     <button class="new-chat" id="new-chat">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -26,6 +26,10 @@
       <button class="footer-btn" id="open-notes">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2A2.5 2.5 0 0 0 7 4.5v.1A3 3 0 0 0 4.5 9a3 3 0 0 0 .5 5.5A3 3 0 0 0 9 19.5a2.5 2.5 0 0 0 3 2.5V4.5A2.5 2.5 0 0 0 9.5 2zM14.5 2A2.5 2.5 0 0 1 17 4.5v.1A3 3 0 0 1 19.5 9a3 3 0 0 1-.5 5.5 3 3 0 0 1-4 5 2.5 2.5 0 0 1-3 2.5"/></svg>
         Memoria
+      </button>
+      <button class="footer-btn" id="open-tools">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg>
+        Habilidades y conectores
       </button>
       <div class="model" id="model-name"></div>
     </div>
@@ -54,8 +58,8 @@
           <button data-prompt="Explícame qué es una API como si tuviera 12 años.">
             <strong>Explicar</strong><span>Qué es una API, de forma sencilla</span>
           </button>
-          <button data-prompt="¿Cómo guardo de forma segura las claves de API en un proyecto de Node.js?">
-            <strong>Seguridad</strong><span>Guardar claves de API en Node.js</span>
+          <button data-prompt="Genera una imagen de un gato astronauta flotando en una estación espacial, estilo ilustración digital.">
+            <strong>Crear imagen</strong><span>Un gato astronauta en el espacio</span>
           </button>
         </div>
       </div>
@@ -65,6 +69,9 @@
     <footer class="composer-wrap">
       <form class="composer" id="composer">
         <textarea id="input" rows="1" placeholder="Escribe tu mensaje…" aria-label="Mensaje"></textarea>
+        <button type="button" id="start-call" class="call-btn" aria-label="Llamada de voz" title="Llamada de voz">
+          <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+        </button>
         <button type="submit" id="send" class="send" aria-label="Enviar" disabled>
           <svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
         </button>
@@ -75,8 +82,8 @@
 </div>
 
 <dialog id="confirm-dialog">
-  <h2>¿Ejecutar este código?</h2>
-  <p class="dialog-sub">La IA quiere ejecutar este código Python en tu PC (sin acceso a tus claves). Revísalo antes de aceptar.</p>
+  <h2 id="confirm-title">¿Ejecutar este código?</h2>
+  <p class="dialog-sub" id="confirm-sub">La IA quiere ejecutar este código Python en tu PC (sin acceso a tus claves). Revísalo antes de aceptar.</p>
   <pre><code id="confirm-code" class="language-python"></code></pre>
   <div class="dialog-actions">
     <button class="btn" id="confirm-deny">Denegar</button>
@@ -106,6 +113,41 @@
     <button class="btn" id="notes-close">Cerrar</button>
   </div>
 </dialog>
+
+<dialog id="tools-dialog">
+  <h2>Habilidades y conectores</h2>
+  <p class="dialog-sub">Las <strong>habilidades</strong> son guías que la IA carga cuando las necesita (carpeta <code>skills/</code>). Los <strong>conectores</strong> la unen a otros servicios mediante MCP (archivo <code>connectors.json</code>; las claves van en <code>.env</code>).</p>
+  <h3>Habilidades</h3>
+  <ul class="item-list" id="skills-list"></ul>
+  <h3>Conectores</h3>
+  <ul class="item-list" id="connectors-list"></ul>
+  <div class="dialog-actions">
+    <button class="btn" id="tools-close">Cerrar</button>
+  </div>
+</dialog>
+
+<div class="call" id="call" hidden>
+  <div class="call-top">
+    <span class="call-name" id="call-name">Yunque</span>
+    <span class="call-hint">Mejor con auriculares</span>
+  </div>
+  <div class="call-center">
+    <div class="orb-wrap"><div class="orb" id="orb"></div></div>
+    <div class="call-status" id="call-status">Preparando…</div>
+    <div class="call-lines">
+      <p class="call-you" id="call-you"></p>
+      <p class="call-ai" id="call-ai"></p>
+    </div>
+  </div>
+  <div class="call-controls">
+    <button class="call-ctrl" id="call-mute" aria-label="Silenciar micrófono" title="Silenciar micrófono">
+      <svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
+    </button>
+    <button class="call-ctrl hangup" id="call-end" aria-label="Colgar" title="Colgar">
+      <svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+</div>
 
 <div class="toast" id="toast" role="status"></div>
 

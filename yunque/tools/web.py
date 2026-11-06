@@ -13,7 +13,7 @@ MAX_TEXT = 8_000
 # Nos identificamos con honestidad. Algunas webs (p. ej. Wikipedia) no permiten
 # la descarga automática; en ese caso la IA usa los fragmentos de la búsqueda.
 HEADERS = {
-    "User-Agent": "MiIA/0.1 (asistente personal de IA) python-httpx",
+    "User-Agent": "Yunque/0.1 (asistente personal de IA) python-httpx",
     "Accept": "text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.8",
     "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
 }

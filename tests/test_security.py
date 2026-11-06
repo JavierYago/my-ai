@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from mi_ia.security import REDACTED, is_public_url, redact, safe_path
+from yunque.security import REDACTED, is_public_url, redact, safe_path
 
 
 @pytest.mark.parametrize("secret", [
